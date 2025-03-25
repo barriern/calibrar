@@ -2,7 +2,7 @@
 NULL
 #' @importFrom graphics abline points
 NULL
-#' @importFrom stats optim pnorm rexp rnorm rpois runif weighted.mean coef 
+#' @importFrom stats optim pnorm rexp rnorm rpois runif weighted.mean coef
 #' complete.cases filter lm na.omit predict sigma splinefun loess
 NULL
 #' @importFrom utils as.relistable read.csv relist write.csv head tail type.convert
@@ -12,4 +12,6 @@ NULL
 #' @importFrom optimx Rcgmin bmchk grchk
 NULL
 #' @importFrom minqa bobyqa
+NULL
+#' @importFrom pbdMPI comm.size comm.rank allgather get.jid
 NULL
