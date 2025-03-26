@@ -330,14 +330,14 @@
 
         }
 
+        # Apply fitness calculation for each core
         Fitness = lapply(index, fitness_func)
 
+        # Gather the fitness values from each core, and send them
+        # to each core. Need to manually convert into matrix
         FITNESS = allgather(Fitness, unlist=TRUE)
+        FITNESS = matrix(FITNESS, nrow=opt$seed, ncol=2, byrow=TRUE)
         FITNESS = FITNESS[order(FITNESS[,1]), ][,-1, drop=FALSE]
-        print("pbdMPI Fitness")
-        print(FITNESS)
-
-
     } else {
 
       FITNESS  =  foreach(i=1:opt$seed, .verbose=FALSE, .inorder=FALSE) %dopar% {
@@ -349,13 +349,17 @@
 
       Fitness = c(i, Fitness)
       Fitness
+      print("doParfitness")
+      print(Fitness)
 
     }
 
     FITNESS = .rbind_fitness(FITNESS)
-    FITNESS = FITNESS[order(FITNESS[,1]), ][,-1, drop=FALSE]
-    print("dopar Fitness")
+    print("dopar FITNESS")
     print(FITNESS)
+    print(class(FITNESS))
+    print(typeof(FITNESS))
+    FITNESS = FITNESS[order(FITNESS[,1]), ][,-1, drop=FALSE]
 
     }
 
