@@ -89,9 +89,15 @@
     # 1. create a new population
     if(all(opt$SIGMA==0)) break
 
-    # Compute population only for rank 0
+    # Compute population only all ranks.
+    # Make sure that all procs have called rtnorm2
+    # function the same number of times to insure
+    # same results with fixed seed
+    print_rank = 1
+
+    temp_population = .createPopulation(opt)
     if(.comm.rank == 0) {
-        opt$pop = .createPopulation(opt)
+        opt$pop = temp_population
     }
 
     # If pbdMPI mode, then send population values
@@ -109,7 +115,6 @@
             opt$pop = recv(rank.source = 0, tag=(.comm.rank + 1) * 1000)
         }
     }
-
 
     # 2. evaluate the function in the population: evaluate fn, aggregate fitness
     # this is this function that is parallelized
@@ -352,18 +357,15 @@
         # print("------------------------------------ nico pbd")
         .comm.size <- comm.size()
         .comm.rank <- comm.rank()
-        # print(.comm.size)
         index = get.jid(opt$seed)
-        # print(index)
         fitness_func = function(i) {
-            Fitness = if(use_disk) fn(pop[, i], ..i=i) else fn(pop[, i])  # internally set to ith wd
-            if(is.null(Fitness)) {
-                .write_calibrar_dump(run=run, gen=gen, i=i)
-            }
+                Fitness = if(use_disk) fn(pop[, i], ..i=i) else fn(pop[, i])  # internally set to ith wd
+                if(is.null(Fitness)) {
+                    .write_calibrar_dump(run=run, gen=gen, i=i)
+                }
 
-            Fitness = c(i, Fitness)
-            Fitness
-
+                Fitness = c(i, Fitness)
+                Fitness
         }
 
         # Apply fitness calculation for each core
