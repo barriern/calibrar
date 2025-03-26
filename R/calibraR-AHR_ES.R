@@ -183,10 +183,10 @@
     }
 
     # save restart
-    .createRestartFile(opt=opt, trace=trace, control=control, method="AHR-ES")
+    if(.comm.rank == 0) .createRestartFile(opt=opt, trace=trace, control=control, method="AHR-ES")
     tm2 = Sys.time()
 
-    if(control$verbose & opt$gen%%control$REPORT==0) {
+    if(control$verbose & opt$gen%%control$REPORT==0 & (.comm.rank == 0)) {
       .messageByGen(opt, trace, level=control$trace, long=format_difftime(tm1, tm2))
     }
 
