@@ -4,7 +4,7 @@
 \alias{sphereN}
 \title{Sphere function with random noise}
 \usage{
-sphereN(x, sd = 0.1, aggregate = TRUE)
+sphereN(x, sd = 0.1, aggregate = TRUE, fixed_seed = TRUE)
 }
 \arguments{
 \item{x}{The coordinates of the point}
@@ -13,7 +13,7 @@ sphereN(x, sd = 0.1, aggregate = TRUE)
 to be added to the position of \code{x}, a normal distribution with mean
 zero is used.}
 
-\item{aggregate}{If \code{aggregate} is \code{TRUE} the distance is returned, 
+\item{aggregate}{If \code{aggregate} is \code{TRUE} the distance is returned,
 otherwise the size of the projection of the distance among each axis.}
 }
 \value{

@@ -13,5 +13,5 @@ NULL
 NULL
 #' @importFrom minqa bobyqa
 NULL
-#' @importFrom pbdMPI comm.size comm.rank allgather get.jid
+#' @importFrom pbdMPI comm.size comm.rank allgather get.jid  init finalize
 NULL
