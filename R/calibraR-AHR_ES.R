@@ -376,7 +376,7 @@
       # call the rbind function to merge all results from individual cores
       Fitness = .rbind_fitness(Fitness)
 
-      FITNESS = allgather(Fitness, unlist=TRUE)
+      FITNESS = allgather(Fitness, unlist=FALSE)
 
       # Gather the fitness values from each core, and send them
       # to each core. Convert everything using rbind a second time
