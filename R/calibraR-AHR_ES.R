@@ -374,7 +374,7 @@
       Fitness = lapply(index, fitness_func)
 
       # call the rbind function to merge all results from individual cores
-      Fitness = .rbind_fitness(Fitness)
+      if(length(Fitness) > 0) Fitness = .rbind_fitness(Fitness)
 
       FITNESS = allgather(Fitness, unlist=FALSE)
 
