@@ -345,6 +345,7 @@
 
   pathTmp = getwd()               # get the current path
   on.exit(setwd(pathTmp))         # back to the original path after execution
+  print("#################### slks,.s,.s,.")
 
   if(isTRUE(parallel)) {
 
@@ -378,9 +379,14 @@
 
       FITNESS = allgather(Fitness, unlist=FALSE)
 
+      # Remove empty lists from the final FITNESS values.
+      # Occurs if some cores don't have any calculations
+      FITNESS = FITNESS[lapply(FITNESS, length) > 0]
+
       # Gather the fitness values from each core, and send them
       # to each core. Convert everything using rbind a second time
       FITNESS = .rbind_fitness(FITNESS)
+
       FITNESS = FITNESS[order(FITNESS[,1]), ][,-1, drop=FALSE]
 
     } else {
@@ -398,6 +404,7 @@
       }
 
       FITNESS = .rbind_fitness(FITNESS)
+
       FITNESS = FITNESS[order(FITNESS[,1]), ][,-1, drop=FALSE]
 
     }
