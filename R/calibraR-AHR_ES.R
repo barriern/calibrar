@@ -345,9 +345,10 @@
 
   pathTmp = getwd()               # get the current path
   on.exit(setwd(pathTmp))         # back to the original path after execution
-  print("*********************** inside calculate fitness")
+  print("#################### slks,.s,.s,.")
 
   if(isTRUE(parallel)) {
+
     # optimize parallel execution, reduce data transfer
 
     parallel_mode = opt$control$parallel_mode
@@ -356,60 +357,62 @@
 
     if(parallel_mode == "pbdMPI") {
 
-        # print("------------------------------------ nico pbd")
-        .comm.size <- comm.size()
-        .comm.rank <- comm.rank()
-        index = get.jid(opt$seed)
-        fitness_func = function(i) {
-                Fitness = if(use_disk) fn(pop[, i], ..i=i) else fn(pop[, i])  # internally set to ith wd
-                if(is.null(Fitness)) {
-                    .write_calibrar_dump(run=run, gen=gen, i=i)
-                }
-
-                Fitness = c(i, Fitness)
-                Fitness
+      .comm.size <- comm.size()
+      .comm.rank <- comm.rank()
+      index = get.jid(opt$seed)
+      fitness_func = function(i) {
+        Fitness = if(use_disk) fn(pop[, i], ..i=i) else fn(pop[, i])  # internally set to ith wd
+        if(is.null(Fitness)) {
+          .write_calibrar_dump(run=run, gen=gen, i=i)
         }
 
-        # Apply fitness calculation for each core
-        Fitness = lapply(index, fitness_func)
+        Fitness = c(i, Fitness)
+        Fitness
 
-        # Gather the fitness values from each core, and send them
-        # to each core. Need to manually convert into matrix
-        FITNESS = allgather(Fitness, unlist=TRUE)
-        FITNESS = matrix(FITNESS, nrow=opt$seed, ncol=2, byrow=TRUE)
-        FITNESS = FITNESS[order(FITNESS[,1]), ][,-1, drop=FALSE]
+      }
+
+      # Apply fitness calculation for each core as a list
+      Fitness = lapply(index, fitness_func)
+
+      # call the rbind function to merge all results from individual cores
+      if(length(Fitness) > 0) Fitness = .rbind_fitness(Fitness)
+
+      FITNESS = allgather(Fitness, unlist=FALSE)
+
+      # Remove empty lists from the final FITNESS values.
+      # Occurs if some cores don't have any calculations
+      FITNESS = FITNESS[lapply(FITNESS, length) > 0]
+
+      # Gather the fitness values from each core, and send them
+      # to each core. Convert everything using rbind a second time
+      FITNESS = .rbind_fitness(FITNESS)
+
+      FITNESS = FITNESS[order(FITNESS[,1]), ][,-1, drop=FALSE]
 
     } else {
 
       FITNESS  =  foreach(i=1:opt$seed, .verbose=FALSE, .inorder=FALSE) %dopar% {
 
-      Fitness = if(use_disk) fn(pop[, i], ..i=i) else fn(pop[, i])  # internally set to ith wd
-      if(is.null(Fitness)) {
-        .write_calibrar_dump(run=run, gen=gen, i=i)
+        Fitness = if(use_disk) fn(pop[, i], ..i=i) else fn(pop[, i])  # internally set to ith wd
+        if(is.null(Fitness)) {
+          .write_calibrar_dump(run=run, gen=gen, i=i)
+        }
+
+        Fitness = c(i, Fitness)
+        Fitness
+
       }
 
-      Fitness = c(i, Fitness)
-      Fitness
-    #   print("doParfitness")
-    #   print(Fitness)
+      FITNESS = .rbind_fitness(FITNESS)
 
-    }
-
-    FITNESS = .rbind_fitness(FITNESS)
-    # print("dopar FITNESS")
-    # print(FITNESS)
-    # print(class(FITNESS))
-    # print(typeof(FITNESS))
-    FITNESS = FITNESS[order(FITNESS[,1]), ][,-1, drop=FALSE]
+      FITNESS = FITNESS[order(FITNESS[,1]), ][,-1, drop=FALSE]
 
     }
 
   } else {
 
     FITNESS	=	NULL
-
     for(i in 1:opt$seed) {
-
       Fitness = if(use_disk) fn(pop[, i], ..i=i) else fn(pop[, i])
       if(is.null(Fitness)) {
         .write_calibrar_dump(run=run, gen=gen, i=i)
